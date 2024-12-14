@@ -1,0 +1,1 @@
+To determine if there is a path between two nodes in the graph, note that (i,j) means that node i and node j are connected with an undirected edge. For each graph edge (i,j) , please rewrite (i,j) to (i,j) and (j,i) so that we can identify edges better.

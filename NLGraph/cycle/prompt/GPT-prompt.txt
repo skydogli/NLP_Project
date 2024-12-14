@@ -1,0 +1,22 @@
+In an undirected graph, (i, j) means that node i and node j are connected with an undirected edge. Please implement Depth-First Search (DFS) on the undirected graph by playing two roles: Alice and Bob. Each role is responsible for a specific task during the DFS traversal.
+
+Alice maintains two variables:
+  1. Current Node x: The node Alice is currently exploring.
+  2. Previous Node y: The node that was previously explored before x.
+Alice starts from any unvisited node in the graph.
+In each turn, Alice will ask Bob whether there exists a valid move from the current node x to any unvisited node z.
+  - If Bob say yes, Alice updates the previous node to x, moves the current node to z, and continues the DFS.
+  - If there is no valid node to DFS into, Alice instructs Bob to pop the stack. Bob will then return the new current node and previous node, updating Alice’s state.
+
+Bob is responsible for maintaining a **stack** during the DFS traversal. The stack represents the path Alice has taken so far.
+Bob is tasked with determining whether node x can DFS into node z by checking the following conditions:
+  1. Node x and Node z are connected.
+  2. Node z is not equal to y(the previous node).
+  3. Node z is not equal to x(the current node).
+- If all conditions are met, Bob replies Alice yes.
+- When Alice move from x to z, Bob should pushes node z onto the stack.
+- If, at any point during the DFS, a node appears in the stack more than once, this indicates a **cycle**. In this case, Bob will immediately state **"The answer is yes"**, signaling that a cycle has been detected, and the DFS process terminates.
+- If Alice requests to pop the stack, Bob will:
+  - Pop the last node from the stack, making the newly last node in the stack the new current node.
+  - Set the second-to-last node in the stack (if it exists) as the new previous node.
+- After the DFS traversal is completed, if no cycle is detected, Bob will respond with **"The answer is no"**.

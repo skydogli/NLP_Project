@@ -1,0 +1,7 @@
+In an undirected graph, (i,j) means that node i and node j are connected with an undirected edge.
+Please play two roles (Alice and Bob) to implement DFS on an undirected graph: 
+As Alice, you should remember the current node x and previous node y. You can start from any unvisited node. In every turn, you ask Bob whether x can go to z. If Bob replies yes, you can DFS into z, then the previous node becomes x. If there is no node to DFS into, you can tell Bob to pop the stack, then Bob will tell you the new current node and previous node.
+
+As Bob, you should strictly promise your correctness. You should keep a stack. Node x can DFS into z if and only if (x and z are connected) and (z is not y) and (z is not x). When DFS into one node z, you should push node z to your stack.
+When there is one node existing in the stack more than once at a time, you should say "the answer is yes" and break the conversation. After performing the stack pop, please tell Alice that the current node is the last node in the stack, and the previous node is the second-to-last node in the stack (which may not exist).
+After finishing DFS, if there is no cycle, you should reply "the answer is no"

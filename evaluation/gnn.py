@@ -24,7 +24,7 @@ parser.add_argument('--layer', type=int, default=1, help='number of GNN layers (
 parser.add_argument('--SC', type=int, default=0, help='self-consistency (default: 0)')
 parser.add_argument('--SC_num', type=int, default=5, help='number of cases for self-consistency (default: 5)')
 args = parser.parse_args()
-assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot"]
+assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","skydogli"]
 assert args.layer in [1,2]
 def translate(G, embedding, args):
     edge = list(G.edges())
@@ -64,35 +64,56 @@ def translate(G, embedding, args):
             Q = Q + " Let's solve the problem by a Python program:"
     return Q
 
-@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(1000))
+from openai import OpenAI
+
+client = OpenAI(
+    # #将这里换成你在aihubmix api keys拿到的密钥
+    api_key="sk-JHYlQsel9VE6RufY0fE0B2EbD0574cF6AaBf5eA623DaF993",
+    # 这里将官方的接口访问地址，替换成aihubmix的入口地址
+    base_url="https://aihubmix.com/v1"
+)
+@retry(wait=wait_random_exponential(min=1, max=30), stop=stop_after_attempt(1000))
 def predict(Q, args):
     input = Q
     temperature = 0
     if args.SC == 1:
         temperature = 0.7
-    if 'gpt' in args.model:
+    if 'gpt' in args.model and args.model != "gpt-3.5-turbo-instruct":
         Answer_list = []
+        print("Len: ",len(input))
+        num=0
         for text in input:
-            response = openai.ChatCompletion.create(
-            model=args.model,
-            messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": text},
-            ],
-            temperature=temperature,
-            max_tokens=args.token,
-            )
-            Answer_list.append(response["choices"][0]["message"]["content"])
+            print("Request ",num)
+            num+=1
+            try:
+                response = client.chat.completions.create(
+                model=args.model,
+                messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": text},
+                ],
+                temperature=temperature,
+                max_tokens=args.token,
+                )
+                print(response.choices[0].message.content)
+                Answer_list.append(response.choices[0].message.content)
+                print("GET RESPONSE")
+            except Exception as e:  # 捕获所有类型的异常
+                print(f"GG: {e}")
         return Answer_list
-    response = openai.Completion.create(
+    print("GO ")
+    response = client.completions.create(
     model=args.model,
     prompt=input,
     temperature=temperature,
     max_tokens=args.token,
     )
     Answer_list = []
+    print("Get Response")
     for i in range(len(input)):
-        Answer_list.append(response["choices"][i]["text"])
+#        print("GET RESPONSE: ",response.choices)
+        Answer_list.append(response.choices[i].text)
+    print("DONE: ",len(Answer_list))
     return Answer_list
 
 def log(Q, res, answer, args):

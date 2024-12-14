@@ -23,11 +23,11 @@ parser.add_argument('--token', type=int, default=400, help='max token (default: 
 parser.add_argument('--SC', type=int, default=0, help='self-consistency (default: 0)')
 parser.add_argument('--SC_num', type=int, default=5, help='number of cases for self-consistency (default: 5)')
 args = parser.parse_args()
-assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","Instruct","Algorithm", "Recitation","hard-CoT","medium-CoT"]
+assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","Instruct","Algorithm", "Recitation","hard-CoT","medium-CoT","skydogli","skydogli2","skydogli3","skydoglisolo","GPT"]
 
 def translate(edge, n, args):
     Q = ''
-    if args.prompt in ["CoT", "k-shot", "Instruct", "Algorithm", "Recitation","hard-CoT","medium-CoT"]:
+    if args.prompt in ["CoT", "k-shot", "Instruct", "Algorithm", "Recitation","hard-CoT","medium-CoT","skydogli","skydogli2","skydogli3","skydoglisolo","GPT"]:
         with open("NLGraph/cycle/prompt/" + args.prompt + "-prompt.txt", "r") as f:
             exemplar = f.read()
         Q = Q + exemplar + "\n\n\n"
@@ -49,7 +49,7 @@ def translate(edge, n, args):
                     u, v = i, j
                     break
         Q = Q + "Q2: Are node "+str(u)+" and node " +str(v)+" connected with an edge?\nA2: No.\n"
-    Q = Q + "Q: Is there a cycle in this graph?\nA:"
+    Q = Q + "Q: Is there a cycle in this graph? Your answer needs to end with \"the answer is no\" or \"the answer is yes\".\nA:"
     match args.prompt:
         case "0-CoT":
             Q = Q + " Let's think step by step:"
@@ -59,39 +59,59 @@ def translate(edge, n, args):
             Q = Q + " Let's solve the problem by a Python program:"
 
     return Q
+from openai import OpenAI
 
+client = OpenAI(
+    # #将这里换成你在aihubmix api keys拿到的密钥
+    api_key="sk-JHYlQsel9VE6RufY0fE0B2EbD0574cF6AaBf5eA623DaF993",
+    # 这里将官方的接口访问地址，替换成aihubmix的入口地址
+    base_url="https://aihubmix.com/v1"
+)
 @retry(wait=wait_random_exponential(min=1, max=30), stop=stop_after_attempt(1000))
 def predict(Q, args):
     input = Q
     temperature = 0
     if args.SC == 1:
         temperature = 0.7
-    if 'gpt' in args.model:
+    if 'gpt' in args.model and args.model != "gpt-3.5-turbo-instruct":
         Answer_list = []
+        print("Len: ",len(input))
+        num=0
         for text in input:
-            response = openai.ChatCompletion.create(
-            model=args.model,
-            messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": text},
-            ],
-            temperature=temperature,
-            max_tokens=args.token,
-            )
-            Answer_list.append(response["choices"][0]["message"]["content"])
+            print("Request ",num)
+            num+=1
+            try:
+                response = client.chat.completions.create(
+                model=args.model,
+                messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": text},
+                ],
+                temperature=temperature,
+                max_tokens=args.token,
+                )
+                print(response.choices[0].message.content)
+                Answer_list.append(response.choices[0].message.content)
+                print("GET RESPONSE")
+            except Exception as e:  # 捕获所有类型的异常
+                print(f"GG: {e}")
         return Answer_list
-    response = openai.Completion.create(
+    print("GO ")
+    response = client.completions.create(
     model=args.model,
     prompt=input,
     temperature=temperature,
     max_tokens=args.token,
     )
     Answer_list = []
+    print("Get Response")
     for i in range(len(input)):
-        Answer_list.append(response["choices"][i]["text"])
+#        print("GET RESPONSE: ",response.choices)
+        Answer_list.append(response.choices[i].text)
+    print("DONE: ",len(Answer_list))
     return Answer_list
 
-def log(Q, res, answer, args):
+def log(Q, res, answer, args, existacc, noexistacc):
     utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
     bj_dt = utc_dt.astimezone(timezone(timedelta(hours=8)))
     time = bj_dt.now().strftime("%Y%m%d---%H-%M")
@@ -108,8 +128,13 @@ def log(Q, res, answer, args):
         f.write("\n")
         f.write("Acc: " + str(res.sum())+'/'+str(len(res)) + '\n')
         print(args, file=f)
+    with open(newpath+"acc.txt","w") as f:
+        f.write("Exist: "+str(existacc)+'\n')
+        f.write("No Exist: "+str(noexistacc)+'\n')
+        print(args, file=f)
 
 def main():
+    print("HI")
     if 'OPENAI_API_KEY' in os.environ:
         openai.api_key = os.environ['OPENAI_API_KEY']
     else:
@@ -126,7 +151,9 @@ def main():
             g_num = 400
 
     batch_num = 20
+    existacc, noexistacc = 0, 0
     for i in tqdm(range((g_num + batch_num - 1) // batch_num)):
+        print("=========================TURN :",i,"=========================")
         G_list, Q_list = [], []
         for j in range(i*batch_num, min(g_num, (i+1)*batch_num)):
             with open("NLgraph/cycle/graph/"+args.mode+"/standard/graph"+str(j)+".txt","r") as f:
@@ -157,21 +184,38 @@ def main():
                 pos = max(ans.find("in this case"), ans.find("after running the algorithm"))
                 if pos == -1:
                     pos = 0
-                p1 = ans.find("there is no cycle")  # for codex
-                p2 = ans.find("there is a cycle")  # for codex
-                p1 = 1000000 if p1 == -1 else p1
-                p2 = 1000000 if p2 == -1 else p2
+                p1 = ans.rfind("the answer is no")  # for codex
+                p2 = ans.rfind("the answer is yes")  # for codex
+                #p1 = 1000000 if p1 == -1 else p1
+                #p2 = 1000000 if p2 == -1 else p2
                 idx = i * batch_num + j
-                if (idx*2 < g_num and p1 < p2) or (idx*2 > g_num and p2 < p1):
+                if (idx*2 < g_num and p1>p2) or (idx*2 >= g_num and p1<p2):
                     vote += 1
             if vote * 2 >= sc:
                 res.append(1)
+                if idx*2 < g_num:
+                    noexistacc += 1
+                else:
+                    existacc += 1
             else:
                 res.append(0)    
-            
+    print("END")  
+    
+    #write answer to file answer.txt
+    with open("answer.txt","w") as f:
+        for i in range(len(answer)):
+            f.write(answer[i])
+            f.write("\n")
+    #write res to file res.txt
+    with open("res.txt","w") as f:
+        for i in range(len(res)):
+            f.write(str(res[i]))
+            f.write("\n")    
     res = np.array(res)
     answer = np.array(answer)
-    log(Q, res, answer, args)
+    existacc = existacc/(len(res)/2)
+    noexistacc = noexistacc/(len(res)/2)
+    log(Q, res, answer, args, existacc, noexistacc)
     print(res.sum())
 
 if __name__ == "__main__":
