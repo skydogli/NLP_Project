@@ -166,7 +166,8 @@ def main():
                     ans = sc_list[k][j].lower()
                     answer.append(ans)
                     #ans = os.linesep.join([s for s in ans.splitlines() if s]).replace(' ', '')
-                    if "the answer is yes" in ans:
+                    pos1,pos2=ans.rfind("the answer is yes"),ans.rfind("the answer is no")
+                    if pos1>pos2:
                         vote += 1
                 if vote * 2 >= sc:
                     res.append(1)
@@ -180,7 +181,8 @@ def main():
                     ans = sc_list[k][j+q].lower()
                     answer.append(ans)
                     #ans = os.linesep.join([s for s in ans.splitlines() if s]).replace(' ', '')
-                    if "the answer is no" in ans:
+                    pos1,pos2=ans.rfind("the answer is yes"),ans.rfind("the answer is no")
+                    if pos1<pos2:
                         vote += 1
                 if vote * 2 >= sc:
                     res.append(1)

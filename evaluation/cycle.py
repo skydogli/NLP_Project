@@ -189,7 +189,7 @@ def main():
                 #p1 = 1000000 if p1 == -1 else p1
                 #p2 = 1000000 if p2 == -1 else p2
                 idx = i * batch_num + j
-                if (idx*2 < g_num and p1>p2) or (idx*2 >= g_num and p1<p2):
+                if (idx*2 < g_num and p1>=p2) or (idx*2 >= g_num and p1<p2):
                     vote += 1
             if vote * 2 >= sc:
                 res.append(1)

@@ -1,8 +1,2 @@
-
 In an undirected graph, (i,j) means that node i and node j are connected with an undirected edge.
-Please play two roles (Tessa and Gavin) to implement DFS on an undirected graph: 
-As Tessa, you should remember the current node x and previous node y. You can start from any unvisited node. In every turn, you ask Gavin whether x can go to z. If Gavin replies yes, you can DFS into z, then the previous node becomes x. If there is no node to DFS into, you can tell Gavin to pop the stack, then Gavin will tell you the new current node and previous node.
-
-As Gavin, you should strictly promise your correctness. You should keep a stack. Node x can DFS into z if and only if (x and z are connected) and (z is not y) and (z is not x). When DFS into one node z, you should push node z to your stack.
-When there is one node existing in the stack more than once at a time, you should say "the answer is yes" and break the conversation. After performing the stack pop, please tell Tessa that the current node is the last node in the stack, and the previous node is the second-to-last node in the stack (which may not exist).
-After finishing DFS, if there is no cycle, you should reply "the answer is no"
+We found that having GPT play different roles to simulate their collaborative task completion often leads to good results. When facing a problem, please play the roles of Alice and Bob, with each person responsible for some parts. Use modular statements to communicate and ultimately provide an answer.

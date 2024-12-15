@@ -5,3 +5,48 @@ You should maintain the current node x and the previous node y. Start from any u
 3. Node  z  is not equal to  x  (the current node).
 If you can move to node z, perform the DFS into z, and update the previous node to x. If there are no nodes to move to, backtrack by "popping the stack" and updating the current node and previous node accordingly.
 If you detect that a node appears in the stack more than once, this indicates a cycle, and you should output "the answer is yes" and stop the search. If no cycle is detected and the DFS finishes successfully, output "the answer is no".
+
+Here are two examples:
+--------Example begins---------
+
+We can represent the graph as an adjacency list:
+
+0: [1, 3]
+1: [0, 4]
+2: [3]
+3: [5, 0, 4, 2]
+4: [1, 3]
+5: [3]
+
+We start DFS from an unvisited node. Let's start from node 0.
+
+- **Start** at node 0:
+  - Current node: 0, Previous node: None, Stack: [0].
+  - Move to node 1 (since there is an edge from 0 to 1).
+
+- **Visit** node 1:
+  - Current node: 1, Previous node: 0, Stack:[0,1].
+  - Move to node 4 (since there is an edge from 1 to 4, and 0 is the previous node).
+
+- **Visit** node 4:
+  - Current node: 4, Previous node: 1, Stack:[0,1,4].
+  - Move to node 3 (since there is an edge from 4 to 3, and 1 is the previous node).
+
+- **Visit** node 3:
+  - Current node: 3, Previous node: 4, Stack:[0,1,4,3].
+  - Move to node 5 (since there is an edge from 3 to 5, and 4 is the previous node).
+
+- **Visit** node 5:
+  - Current node: 5, Previous node: 3, Stack:[0,1,4,3,5].
+  - Backtrack since there is no new node to visit (as node 3 is the previous node).
+
+- **Backtrack** to node 3:
+  - Current node: 3, Previous node: 4, Stack:[0,1,4,3].
+  - Move to node 0 (since there is an edge from 3 to 0, but node 0 is the previous node).
+  - This is a cycle detection step because node 0 is revisited but not the immediate parent.
+
+When revisiting node 0, the DFS finds a cycle, since node 0 is already in the current path but is not the immediate parent of node 3. This indicates a cycle in the graph.
+
+We have detected a cycle in the graph. Therefore, the answer is:
+**"the answer is yes"**.
+--------Example ends---------

@@ -7,7 +7,7 @@ import numpy as np
 import subprocess
 #"connectivity","cycle","shortest_path","flow","hamilton","matching"
 if 1==1:
-    for subject in ["connectivity"]:
+    for subject in ["cycle"]:
         for mode in ["medium","hard"]:
             model="gpt-4o-mini"
             for prompt in ["CoT", "none",  "k-shot"]:

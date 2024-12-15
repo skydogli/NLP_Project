@@ -1,1 +1,2 @@
-First, briefly explain what steps you will take. Second, describe the graph. Third, outline a step-by-step thought process. Fourth, double check the answer is reasonable. Finally, state the final answer.
+In an undirected graph, (i,j) means that node i and node j are connected with an undirected edge.
+We found that having GPT play different roles to simulate their collaborative task completion often leads to good results. When facing a problem, please play the roles of Alice and Bob, with each person responsible for some parts. Use modular statements to communicate and ultimately provide an answer.
