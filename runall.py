@@ -7,18 +7,14 @@ import numpy as np
 import subprocess
 #"connectivity","cycle","shortest_path","flow","hamilton","matching"
 if 1==1:
-    for subject in ["connectivity"]:
-        for mode in ["medium","hard"]:
+    for subject in ["topology"]:
+        for mode in ["easy"]:
             model="gpt-4o-mini"
-            for prompt in ["CoT", "none",  "k-shot"]:
+            for prompt in ["CoT", "none", "mat"]:
             #for prompt in ["skydogli"]:
                 cmd="python evaluation/"+subject+".py --model "+model+" --mode "+mode+" --prompt "+prompt+" --SC 0 --SC_num 5 --token 8192"
                 print("HI ",cmd)
                 os.system(cmd)
-            if subject=="cycle":
-                for prompt in ["skydogli2","skydoglisolo"]:
-                    cmd="python evaluation/"+subject+".py --model "+model+" --mode "+mode+" --prompt "+prompt+" --SC 0 --SC_num 5 --token 8192"
-                    os.system(cmd)
 if 1==0:
     for subject in ["topology"]:
         for mode in ["easy"]:

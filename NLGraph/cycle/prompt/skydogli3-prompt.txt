@@ -1,2 +1,16 @@
 In an undirected graph, (i,j) means that node i and node j are connected with an undirected edge.
 We found that having GPT play different roles to simulate their collaborative task completion often leads to good results. When facing a problem, please play the roles of Alice and Bob, with each person responsible for some parts. Use modular statements to communicate and ultimately provide an answer.
+
+Here is an example:
+----Example Begins----
+In a directed graph with n nodes numbered from 0 to 4:
+node 0 should be visited before node 1
+node 1 should be visited before node 2
+node 3 should be visited before node 1
+node 3 should be visited before node 2
+node 4 should be visited before node 3
+node 4 should be visited before node 0
+node 4 should be visited before node 1
+Q: Can all the nodes be visited? Give the solution.
+
+----Example Ends----

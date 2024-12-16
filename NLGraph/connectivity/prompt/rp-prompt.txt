@@ -1,0 +1,88 @@
+In an undirected graph, (i,j) means that node i and node j are connected with an undirected edge.
+Please play two roles (Alice and Bob) to implement Disjoint Set Union on an undirected graph: 
+As Bob, you should maintain an arry F[x], which represents minimum number on x's Connected Set. At first, for each x, F[x]=x. Alice may give you two instructions:
+1. "FindF(x)", then you consider f=F[x]. When f=F[f], respond Alice with f;Otherwise, set f=F[f].
+2. "Set F[x]=y", then you should set F[x]=y and responds Alice with "OK".
+As Alice, you should strictly enumerate all graph edges given, and for each edge (x,y), you should ask Bob "FindF(x)" and "FindF(y)" respectively. If the returned values are different (assuming u and v are returned), tell Bob Set F[u] = v.
+When querying whether (x, y) are connected, ask Bob with FindF(x) and FindF(y). If they are the same, the answer is yes; otherwise, the answer is no.
+
+Here are two examples:
+
+--------Example Begins--------
+
+
+
+1. **Graph edges:**
+   - (0, 1)
+   - (1, 2)
+   - (3, 4)
+   - (4, 5)
+
+2. **Initial state:**
+   Alice will enumerate all the edges and begin by asking Bob to find the connected sets for each node involved. 
+   Bob sets F[0]=0, F[1]=1, F[2]=2, F[3]=3, F[4]=4, F[5]=5.
+
+
+Here’s how Alice and Bob would handle this using the Disjoint Set Union (DSU) or Union-Find method:
+
+### **Initial Setup:**
+- Alice gives Bob the graph edges: (0,1), (1,2), (3,4), (4,5).
+- Bob will initialize the array `F[x]` to represent the parent or leader of each node. Initially, each node is its own leader, so `F[x] = x`.
+
+---
+
+### **Step-by-Step Dialogue:**
+
+1. **For Edge (0, 1):**
+   - Alice asks Bob: "FindF(0)".
+   - Bob responds: "f = 0" (since `F[0] = 0`).
+   - Alice asks Bob: "FindF(1)".
+   - Bob responds: "f = 1" (since `F[1] = 1`).
+   - Since the values are different (0 and 1), Alice tells Bob: "Set F[0] = 1".
+   - Bob updates `F[0]` to 1 and responds: "OK".
+
+2. **For Edge (1, 2):**
+   - Alice asks Bob: "FindF(1)".
+   - Bob responds: "f = 1" (since `F[1] = 1`).
+   - Alice asks Bob: "FindF(2)".
+   - Bob responds: "f = 2" (since `F[2] = 2`).
+   - Since the values are different (1 and 2), Alice tells Bob: "Set F[1] = 2".
+   - Bob updates `F[1]` to 2 and responds: "OK".
+
+3. **For Edge (3, 4):**
+   - Alice asks Bob: "FindF(3)".
+   - Bob responds: "f = 3" (since `F[3] = 3`).
+   - Alice asks Bob: "FindF(4)".
+   - Bob responds: "f = 4" (since `F[4] = 4`).
+   - Since the values are different (3 and 4), Alice tells Bob: "Set F[3] = 4".
+   - Bob updates `F[3]` to 4 and responds: "OK".
+
+4. **For Edge (4, 5):**
+   - Alice asks Bob: "FindF(4)".
+   - Bob responds: "f = 4" (since `F[4] = 4`).
+   - Alice asks Bob: "FindF(5)".
+   - Bob responds: "f = 5" (since `F[5] = 5`).
+   - Since the values are different (4 and 5), Alice tells Bob: "Set F[4] = 5".
+   - Bob updates `F[4]` to 5 and responds: "OK".
+
+---
+
+### **Query: Is there a path between node 1 and node 4?**
+
+- Alice asks Bob: "FindF(1)".
+  - Bob finds: `F[1] = 2`, so it goes to `FindF(2)`.
+  - Bob finds: `F[2] = 2`, so the root of 1 is 2.
+  
+- Alice asks Bob: "FindF(4)".
+  - Bob finds: `F[4] = 5`, so it goes to `FindF(5)`.
+  - Bob finds: `F[5] = 5`, so the root of 4 is 5.
+
+- Since the roots of node 1 and node 4 are different (2 and 5), the answer is:
+  - **No**, there is no path between node 1 and node 4.
+
+---
+
+### **Final Output:**
+
+**A**: No, there is no path between node 1 and node 4. The answer is no.
+--------Example Ends--------

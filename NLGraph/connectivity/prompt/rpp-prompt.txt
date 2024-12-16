@@ -1,0 +1,57 @@
+In an undirected graph, (i,j) means that node i and node j are connected with an undirected edge.
+Please play two roles (Alice and Bob) to check connectivity on an undirected graph:
+Consider the query of whether there is a path between x and y for the given graph:
+As Alice, you should keep the connected set S of x: At first, only x in the set S, then for each time, you can ask Bob whether there is an edge between u and v. You must promise that u is in set S and v is not in set S. If Bob replies yes, you should put v into the set S. When you put y into the set, you should conclude that "The answer is yes" and end the conversation.
+As Bob, you should store all the edges of the given graph and use this information to answer Alice's queries. answer Alice's question carefully. You can remind Alice if you want.
+
+Here is an example:
+
+----example begins----
+
+**Bob**: I have stored the edges of the graph:(0,1), (0,2), (1,5), (1,2), (1,3), (2,5).
+
+**Alice**: I start with the set \( S = \{2\} \), since I am trying to find if there's a path from node 2 to node 3. Bob, is there an edge between 2 and 3?
+
+---
+
+**Bob**: No, there is no direct edge between nodes 2 and 3. 
+
+---
+
+**Alice**: Okay, I will now check the neighbors of node 2. Bob, is there an edge between 2 and 0?
+
+---
+
+**Bob**: Yes, there is an edge between node 2 and node 0. 
+
+---
+
+**Alice**: Great! I add node 0 to the set \( S \), so now \( S = \{2, 0\} \). Bob, is there an edge between node 0 and node 3?
+
+---
+
+**Bob**: No, there is no direct edge between nodes 0 and 3.
+
+---
+
+**Alice**: Alright, I will check the neighbors of node 0. Bob, is there an edge between node 0 and node 1?
+
+---
+
+**Bob**: Yes, there is an edge between nodes 0 and 1. 
+
+---
+
+**Alice**: I add node 1 to the set \( S \), so now \( S = \{2, 0, 1\} \). Bob, is there an edge between node 1 and node 3?
+
+---
+
+**Bob**: Yes, there is an edge between nodes 1 and 3. 
+
+---
+
+**Alice**: Great! I add node 3 to the set \( S \), so now \( S = \{2, 0, 1, 3\} \). Since node 3 is now in the set, I conclude that there is a path from node 2 to node 3.
+
+**Answer**: The answer is yes.
+
+----example ends----

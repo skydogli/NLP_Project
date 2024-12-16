@@ -22,12 +22,12 @@ parser.add_argument('--token', type=int, default=256, help='max token (default: 
 parser.add_argument('--SC', type=int, default=0, help='self-consistency (default: 0)')
 parser.add_argument('--SC_num', type=int, default=5, help='number of cases for SC (default: 5)')
 args = parser.parse_args()
-assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","Algorithm","Instruct","Repeat","Repeat+CoT","skydogli","skydogli2"]
+assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","Algorithm","Instruct","Repeat","Repeat+CoT","skydogli","skydogli2","rp","rpp"]
 def translate(m,q,array,args):
     edge = array[:m]
     question = array[m:]
     Q = ''
-    if args.prompt in ["CoT", "k-shot","Algorithm","Instruct","Repeat","Repeat+CoT","skydogli","skydogli2"]:
+    if args.prompt in ["CoT", "k-shot","Algorithm","Instruct","Repeat","Repeat+CoT","skydogli","skydogli2","rp","rpp"]:
         with open("NLGraph/connectivity/prompt/" + args.prompt + "-prompt.txt", "r") as f:
             exemplar = f.read()
         Q = Q + exemplar + "\n\n\n"

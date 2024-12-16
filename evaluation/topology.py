@@ -22,11 +22,11 @@ parser.add_argument('--token', type=int, default=400, help='max token (default: 
 parser.add_argument('--SC', type=int, default=0, help='self-consistency (default: 0)')
 parser.add_argument('--SC_num', type=int, default=5, help='number of cases for self-consistency (default: 5)')
 args = parser.parse_args()
-assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","Instruct","Algorithm","skydogli"]
+assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","Instruct","Algorithm","skydogli","mat","rp-1shot"]
 
 def translate(edge, n, args):
     Q = ''
-    if args.prompt in ["CoT", "k-shot", "LTM", "Instruct", "Algorithm","skydogli"]:
+    if args.prompt in ["CoT", "k-shot", "LTM", "Instruct", "Algorithm","skydogli","mat","rp-1shot"]:
         with open("NLGraph/topology/prompt/" + args.prompt + "-prompt.txt", "r") as f:
             exemplar = f.read()
         Q = Q + exemplar + "\n\n"
@@ -35,7 +35,7 @@ def translate(edge, n, args):
         Q = Q + 'node '+str(edge[i][0])+' should be visited before node '+str(edge[i][1])+'\n'
     if args.prompt == "Instruct":
         Q = Q + "Let's construct a graph with the nodes and edges first.\n"
-    Q = Q + "Q: Can all the nodes be visited? Give the solution.\nA:"
+    Q = Q + "Q: Can all the nodes be visited? Give the solution. If yes, output the topology order in list form at end.\n\nA:"
     match args.prompt:
         case "0-CoT":
             Q = Q + " Let's think step by step:"
@@ -146,19 +146,17 @@ def process_ans(ans, pos, G):
             num = 0
     return solution
 
+import re
 def evaluate(ans, G):
+    nums = re.findall(r'\d+', ans)
+    n = G.number_of_nodes()
+    if len(nums) <= n:
+        nums=[0]*n
+    
+    nums=[int(i) for i in nums]
+    return check(nums[-n:], G)
+    return ()
 
-    pos = ans.find("solution")
-    if pos == -1:
-        pos = max(ans.find("yes"), ans.find("in the following order"))
-    if pos == -1:
-        return 0
-    solution = process_ans(ans, pos, G)
-    flag1  = check(solution, G)
-    solution = process_ans(ans, 0, G)
-
-    flag2  = check(solution, G)
-    return (flag1 or flag2)
 
 def main():
     if 'OPENAI_API_KEY' in os.environ:
@@ -177,6 +175,7 @@ def main():
             g_num = 180
 
     batch_num = 20
+    correct,total=0,0
     for i in tqdm(range((g_num + batch_num - 1) // batch_num)):
         G_list, Q_list = [], []
         for j in range(i*batch_num, min(g_num, (i+1)*batch_num)):
@@ -198,6 +197,9 @@ def main():
             answer.append(ans.lower())
             try:
                 result = evaluate(ans.lower(), G)
+                correct += result
+                total += 1
+                print("Current ACC: ", correct/total)
             except:
                 print(ans.lower())
             res.append(result)
